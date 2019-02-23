@@ -5,12 +5,29 @@ import android.text.TextUtils;
 import com.dcy.coolweather.db.City;
 import com.dcy.coolweather.db.Country;
 import com.dcy.coolweather.db.Province;
+import com.dcy.coolweather.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import okhttp3.Response;
+
 public class Utilty {
+
+    public static Weather handleWeatherResponse(String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent,Weather.class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static boolean handleProvinceResponse(String response) {
         if (!TextUtils.isEmpty(response)) {
             try {
@@ -18,7 +35,7 @@ public class Utilty {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject provinceObject = jsonArray.getJSONObject(i);
                     Province province = new Province();
-                    province.setId(provinceObject.getInt("id"));
+                    province.setProvinceCode(provinceObject.getInt("id"));
                     province.setProvinceName(provinceObject.getString("name"));
                     province.save();
                 }
